@@ -74,4 +74,9 @@ public class UserController {
             .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()));
     }
 
+    @GetMapping("/ping")
+    public Mono<String> ping() {
+        return Mono.just("pong");
+    }
+
 }
