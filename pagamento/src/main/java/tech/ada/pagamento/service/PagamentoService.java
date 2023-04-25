@@ -31,10 +31,15 @@ public class PagamentoService {
         // validar
 
         Mono<Comprovante> comprovanteMono = Flux.zip(usuarios, usuarios.skip(1))
-                .map(tupla -> new Transacao(
-                        tupla.getT1().getUsername(),
-                        tupla.getT2().getUsername(),
-                        pagamento.getValor()))
+                .map(tupla -> {
+                    if (tupla.getT1().getBalance() < pagamento.getValor()) {
+                        Mono.error(new RuntimeException("You are broke"));
+                    }
+                    return new Transacao(
+                            tupla.getT1().getUsername(),
+                            tupla.getT2().getUsername(),
+                            pagamento.getValor());
+                })
                 .last()
                 .flatMap(tx -> transacaoRepository.save(tx))
                 .map(tx -> tx.getComprovate())
